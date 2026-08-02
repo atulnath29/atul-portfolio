@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowRight, FiMessageCircle } from 'react-icons/fi';
-
-const BASE = import.meta.env.BASE_URL || '/';
+import heroPhoto from '../assets/hero.jpg';
 
 const TECH_LABELS = [
   { label: 'C++', x: '-60px', y: '20%', delay: 0 },
@@ -109,7 +108,7 @@ export default function Hero() {
         >
           <div className="profile-container">
             <img
-              src={`${BASE}images/profile.png`}
+              src={heroPhoto}
               alt="Atul Nath — Full Stack Developer"
               className="profile-img"
             />
