@@ -9,11 +9,11 @@ const SKILL_CATEGORIES = [
     title: 'Languages',
     color: '#3b82f6',
     skills: [
-      { name: 'JavaScript', level: 88 },
-      { name: 'Python', level: 85 },
-      { name: 'C++', level: 85 },
-      { name: 'Java', level: 80 },
-      { name: 'C', level: 75 },
+      { name: 'JavaScript', level: 69 },
+      { name: 'Python', level: 50 },
+      { name: 'C++', level: 40 },
+      { name: 'Java', level: 95 },
+      { name: 'C', level: 20 },
     ],
   },
   {
