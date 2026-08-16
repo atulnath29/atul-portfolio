@@ -90,7 +90,7 @@ export default function Skills() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          style={{ textAlign: 'center', marginBottom: '48px' }}
         >
           <div className="section-label"><FiCode /> Skills</div>
           <h2 className="section-heading">Skills &amp; Technologies</h2>
@@ -101,12 +101,15 @@ export default function Skills() {
         </motion.div>
 
         {/* 2x2 SKILL GRID */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '24px',
-          marginBottom: '40px',
-        }}>
+        <div
+          className="skills-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '24px',
+            marginBottom: '40px',
+          }}
+        >
           {SKILL_CATEGORIES.map((cat, idx) => (
             <motion.div
               key={cat.id}
@@ -114,14 +117,14 @@ export default function Skills() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               className="card"
-              style={{ padding: '28px' }}
+              style={{ padding: '24px' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '10px',
                   background: `${cat.color}18`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: cat.color,
+                  color: cat.color, flexShrink: 0,
                 }}>
                   {cat.icon}
                 </div>
@@ -139,7 +142,7 @@ export default function Skills() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.4 }}
-          style={{ textAlign: 'center', marginBottom: '60px' }}
+          style={{ textAlign: 'center', marginBottom: '48px' }}
         >
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '14px' }}>
             <FiTag style={{ display: 'inline', marginRight: '6px' }} />
@@ -157,13 +160,14 @@ export default function Skills() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
+          className="stats-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
             gap: '16px',
           }}
         >
-          {STATS.map((stat, idx) => (
+          {STATS.map((stat) => (
             <div key={stat.label} className="stat-card">
               <span className="stat-number">{stat.number}</span>
               <span className="stat-label">{stat.label}</span>

@@ -40,12 +40,19 @@ export default function Hero() {
         background: '#8b5cf6',
       }} />
 
-      <div className="container-custom" style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        gap: '60px', padding: '100px 24px 60px', flexWrap: 'wrap',
-      }}>
+      <div
+        className="container-custom hero-content-row"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '60px',
+          padding: '100px 24px 60px',
+          flexWrap: 'wrap',
+        }}
+      >
         {/* LEFT CONTENT */}
-        <div style={{ flex: 1, minWidth: '300px', maxWidth: '580px' }}>
+        <div className="hero-content-left" style={{ flex: 1, minWidth: '300px', maxWidth: '580px' }}>
           {/* ROLE BADGE */}
           <motion.div {...fadeUp(0.1)}>
             <div style={{
@@ -67,7 +74,10 @@ export default function Hero() {
           </motion.div>
 
           {/* HEADING */}
-          <motion.h1 {...fadeUp(0.2)} style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: '20px' }}>
+          <motion.h1
+            {...fadeUp(0.2)}
+            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, lineHeight: 1.15, marginBottom: '20px' }}
+          >
             Building digital{' '}
             <span className="gradient-text">experiences</span>
             <br />that matter
@@ -79,17 +89,25 @@ export default function Hero() {
           </motion.p>
 
           {/* BUTTONS */}
-          <motion.div {...fadeUp(0.4)} style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}>
-            <button className="btn-primary" onClick={() => scrollTo('#projects')}>
+          <motion.div
+            {...fadeUp(0.4)}
+            className="hero-btn-group"
+            style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}
+          >
+            <button className="btn-primary" onClick={() => scrollTo('#projects')} style={{ minHeight: '48px' }}>
               View Work <FiArrowRight />
             </button>
-            <button className="btn-outline" onClick={() => scrollTo('#contact')}>
+            <button className="btn-outline" onClick={() => scrollTo('#contact')} style={{ minHeight: '48px' }}>
               Get In Touch <FiMessageCircle />
             </button>
           </motion.div>
 
           {/* SOCIAL ICONS */}
-          <motion.div {...fadeUp(0.5)} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <motion.div
+            {...fadeUp(0.5)}
+            className="hero-social-row"
+            style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
+          >
             <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginRight: '4px' }}>Connect:</span>
             {SOCIAL_LINKS.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="social-link" aria-label={s.label}>
@@ -116,7 +134,7 @@ export default function Hero() {
             <div className="profile-outline" />
 
             {/* FLOATING TECH LABELS */}
-            {TECH_LABELS.map((t, i) => (
+            {TECH_LABELS.map((t) => (
               <div key={t.label} className="float-label" style={{
                 left: t.x.includes('%') ? undefined : t.x,
                 right: t.x === '105%' ? '-60px' : undefined,
@@ -127,7 +145,7 @@ export default function Hero() {
               </div>
             ))}
 
-            {/* FLOATING CARDS */}
+            {/* FLOATING STATUS CARD */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
@@ -147,6 +165,31 @@ export default function Hero() {
           </div>
         </motion.div>
       </div>
+
+      {/* HERO RESPONSIVE INLINE FIX — override minWidth on mobile */}
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-content-left {
+            min-width: unset !important;
+            max-width: 100% !important;
+            align-items: center !important;
+          }
+          .hero-content-row {
+            flex-direction: column-reverse !important;
+            padding-top: 90px !important;
+            padding-bottom: 48px !important;
+            gap: 32px !important;
+            justify-content: center !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .hero-content-row {
+            padding-top: 80px !important;
+            padding-bottom: 40px !important;
+            gap: 28px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

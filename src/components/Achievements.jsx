@@ -34,6 +34,25 @@ const TYPE_COLORS = {
   Certification: '#10b981',
 };
 
+/* ── Hook: get viewport-based visible card count ── */
+function useVisibleCards() {
+  const getCount = () => {
+    if (typeof window === 'undefined') return 3;
+    if (window.innerWidth < 640) return 1;
+    if (window.innerWidth < 1024) return 2;
+    return 3;
+  };
+  const [count, setCount] = useState(getCount);
+
+  useEffect(() => {
+    const onResize = () => setCount(getCount());
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  return count;
+}
+
 /* ── ACHIEVEMENT CARD ── */
 function AchCard({ item }) {
   const isAchievement = item._type === 'achievement';
@@ -45,13 +64,15 @@ function AchCard({ item }) {
       width: '100%',
       minHeight: '200px',
       position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
     }}>
       {/* STAR ICON */}
       <div style={{
         width: '36px', height: '36px', borderRadius: '10px',
         background: `${color}18`, color: color,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: '16px',
+        marginBottom: '16px', flexShrink: 0,
       }}>
         <FiStar size={16} />
       </div>
@@ -66,12 +87,12 @@ function AchCard({ item }) {
       </div>
 
       {/* TITLE */}
-      <h4 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)', lineHeight: 1.3 }}>
+      <h4 style={{ fontSize: '0.97rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)', lineHeight: 1.3, paddingRight: '60px' }}>
         {item.title}
       </h4>
 
       {/* DESCRIPTION */}
-      <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>
+      <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px', flex: 1 }}>
         {item.description}
       </p>
 
@@ -94,17 +115,40 @@ function AchCard({ item }) {
   );
 }
 
-/* ── UNIFIED CAROUSEL ── */
+/* ── ARROW BUTTON ── */
+function ArrowBtn({ onClick, children, label }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      className="carousel-arrow-btn"
+      style={{
+        width: '44px', height: '44px', borderRadius: '50%',
+        background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', color: 'var(--text-secondary)',
+        transition: 'all 0.2s', boxShadow: 'var(--shadow-md)',
+        flexShrink: 0,
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-blue)'; e.currentTarget.style.color = 'white'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ── UNIFIED RESPONSIVE CAROUSEL ── */
 function AchievementCarousel({ items }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [progress, setProgress] = useState(0);
   const [paused, setPaused] = useState(false);
-  const intervalRef = useRef(null);
   const progressRef = useRef(null);
-  const DURATION = 4000; // ms per slide
-  const CARDS_DESKTOP = 3;
+  const touchStartX = useRef(null);
+  const visibleCards = useVisibleCards();
+  const DURATION = 4000;
 
-  const totalSlides = Math.max(0, items.length - CARDS_DESKTOP + 1);
+  const totalSlides = Math.max(0, items.length - visibleCards + 1);
 
   const goNext = useCallback(() => {
     setCurrentIdx(i => (i + 1) >= totalSlides ? 0 : i + 1);
@@ -116,9 +160,14 @@ function AchievementCarousel({ items }) {
     setProgress(0);
   }, [totalSlides]);
 
+  // Clamp currentIdx when visibleCards changes
+  useEffect(() => {
+    setCurrentIdx(i => Math.min(i, Math.max(0, totalSlides - 1)));
+  }, [totalSlides]);
+
   // Progress animation
   useEffect(() => {
-    if (paused || items.length <= CARDS_DESKTOP) return;
+    if (paused || items.length <= visibleCards) return;
 
     const startTime = performance.now() - (progress / 100) * DURATION;
 
@@ -135,40 +184,67 @@ function AchievementCarousel({ items }) {
 
     progressRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(progressRef.current);
-  }, [currentIdx, paused, goNext, items.length]);
+  }, [currentIdx, paused, goNext, items.length, visibleCards]);
 
   if (items.length === 0) return null;
 
-  // Determine card width based on viewport
-  const cardWidth = `calc(${100 / CARDS_DESKTOP}% - 16px)`;
+  // Card width: fill container divided by visible count
+  const cardWidth = `calc(${100 / visibleCards}% - ${(visibleCards - 1) * 20 / visibleCards}px)`;
+
+  // Touch handlers for swipe
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    setPaused(true);
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? goNext() : goPrev();
+    }
+    touchStartX.current = null;
+    setPaused(false);
+  };
+
+  // On mobile, arrows go below the track
+  const isMobile = visibleCards === 1;
 
   return (
     <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* ARROWS + TRACK */}
-      <div style={{ position: 'relative' }}>
-        {/* LEFT ARROW */}
-        <button onClick={goPrev} style={{
-          position: 'absolute', left: '-20px', top: '50%', transform: 'translateY(-50%)',
-          zIndex: 10, width: '40px', height: '40px', borderRadius: '50%',
-          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', color: 'var(--text-secondary)',
-          transition: 'all 0.2s', boxShadow: 'var(--shadow-md)',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-blue)'; e.currentTarget.style.color = 'white'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <FiChevronLeft size={18} />
-        </button>
+      {/* TRACK + DESKTOP ARROWS */}
+      <div style={{ position: 'relative', padding: isMobile ? '0' : '0 28px' }}>
+        {/* LEFT ARROW — desktop: absolute; mobile: hidden here */}
+        {!isMobile && (
+          <button
+            onClick={goPrev}
+            aria-label="Previous achievement"
+            style={{
+              position: 'absolute', left: '-8px', top: '50%', transform: 'translateY(-50%)',
+              zIndex: 10, width: '44px', height: '44px', borderRadius: '50%',
+              background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-secondary)',
+              transition: 'all 0.2s', boxShadow: 'var(--shadow-md)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-blue)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <FiChevronLeft size={18} />
+          </button>
+        )}
 
-        {/* CARDS */}
-        <div style={{ overflow: 'hidden', borderRadius: '12px' }}>
+        {/* CARDS TRACK */}
+        <div
+          style={{ overflow: 'hidden', borderRadius: '12px' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <motion.div
             style={{ display: 'flex', gap: '20px' }}
-            animate={{ x: `calc(-${currentIdx * (100 / CARDS_DESKTOP)}% - ${currentIdx * 20 / CARDS_DESKTOP}px)` }}
+            animate={{ x: `calc(-${currentIdx * (100 / visibleCards)}% - ${currentIdx * 20 / visibleCards}px)` }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
             {items.map(item => (
@@ -179,38 +255,64 @@ function AchievementCarousel({ items }) {
           </motion.div>
         </div>
 
-        {/* RIGHT ARROW */}
-        <button onClick={goNext} style={{
-          position: 'absolute', right: '-20px', top: '50%', transform: 'translateY(-50%)',
-          zIndex: 10, width: '40px', height: '40px', borderRadius: '50%',
-          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', color: 'var(--text-secondary)',
-          transition: 'all 0.2s', boxShadow: 'var(--shadow-md)',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-blue)'; e.currentTarget.style.color = 'white'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
-        >
-          <FiChevronRight size={18} />
-        </button>
+        {/* RIGHT ARROW — desktop only */}
+        {!isMobile && (
+          <button
+            onClick={goNext}
+            aria-label="Next achievement"
+            style={{
+              position: 'absolute', right: '-8px', top: '50%', transform: 'translateY(-50%)',
+              zIndex: 10, width: '44px', height: '44px', borderRadius: '50%',
+              background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--text-secondary)',
+              transition: 'all 0.2s', boxShadow: 'var(--shadow-md)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-blue)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <FiChevronRight size={18} />
+          </button>
+        )}
       </div>
 
-      {/* PROGRESS BAR */}
-      {items.length > CARDS_DESKTOP && (
+      {/* MOBILE: arrows below carousel */}
+      {isMobile && totalSlides > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '20px' }}>
+          <ArrowBtn onClick={goPrev} label="Previous achievement"><FiChevronLeft size={18} /></ArrowBtn>
+          <ArrowBtn onClick={goNext} label="Next achievement"><FiChevronRight size={18} /></ArrowBtn>
+        </div>
+      )}
+
+      {/* DOT INDICATORS on mobile */}
+      {isMobile && items.length > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '14px' }}>
+          {items.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setCurrentIdx(i); setProgress(0); }}
+              aria-label={`Go to slide ${i + 1}`}
+              style={{
+                width: i === currentIdx ? '20px' : '8px',
+                height: '8px',
+                borderRadius: '4px',
+                background: i === currentIdx ? 'var(--accent-orange)' : 'var(--border-color)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* PROGRESS BAR (desktop/tablet) */}
+      {!isMobile && items.length > visibleCards && (
         <div className="carousel-progress-bar" style={{ marginTop: '28px' }}>
           <div className="carousel-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       )}
-
-      {/* RESPONSIVE CSS */}
-      <style>{`
-        @media (max-width: 900px) {
-          .ach-card-width { width: calc(50% - 10px) !important; }
-        }
-        @media (max-width: 560px) {
-          .ach-card-width { width: 100% !important; }
-        }
-      `}</style>
     </div>
   );
 }
@@ -228,9 +330,17 @@ function BadgeTabs({ data, loading }) {
       </h3>
 
       {/* TAB BUTTONS */}
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}>
+      <div
+        className="badge-tabs-row"
+        style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '32px' }}
+      >
         {BADGE_PLATFORMS.map(p => (
-          <button key={p} className={`tab-btn ${activeTab === p ? 'active' : ''}`} onClick={() => setActiveTab(p)}>
+          <button
+            key={p}
+            className={`tab-btn ${activeTab === p ? 'active' : ''}`}
+            onClick={() => setActiveTab(p)}
+            style={{ minHeight: '44px' }}
+          >
             {PLATFORM_LABELS[p]}
           </button>
         ))}
@@ -244,7 +354,8 @@ function BadgeTabs({ data, loading }) {
       {/* BADGES GRID */}
       {!loading && filtered.length > 0 && (
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(220px, 100%), 1fr))',
           gap: '16px', marginBottom: '24px',
         }}>
           {filtered.map(badge => (
@@ -270,7 +381,13 @@ function BadgeTabs({ data, loading }) {
 
       {/* VIEW PROFILE LINK */}
       <div style={{ textAlign: 'center', marginTop: '16px' }}>
-        <a href={PLATFORM_LINKS[activeTab]} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ fontSize: '0.85rem', padding: '8px 22px' }}>
+        <a
+          href={PLATFORM_LINKS[activeTab]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-outline"
+          style={{ fontSize: '0.85rem', padding: '10px 22px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
           View Profile <FiExternalLink size={13} />
         </a>
       </div>
@@ -326,7 +443,6 @@ export default function Achievements() {
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.7, delay: 0.2 }}
-            style={{ padding: '0 24px' }}
           >
             <AchievementCarousel items={allItems} />
           </motion.div>

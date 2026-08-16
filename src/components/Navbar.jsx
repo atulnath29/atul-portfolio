@@ -35,6 +35,15 @@ export default function Navbar({ isDark, toggleDark }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth > 768) setMobileOpen(false);
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const scrollTo = (href) => {
     setMobileOpen(false);
     const el = document.querySelector(href);
@@ -52,7 +61,7 @@ export default function Navbar({ isDark, toggleDark }) {
         <div className="container-custom" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
           {/* LOGO */}
           <a href="#home" onClick={(e) => { e.preventDefault(); scrollTo('#home'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--text-primary)', flexShrink: 0 }}>
             <span style={{ color: 'var(--accent-blue)', fontFamily: 'monospace', fontSize: '1.25rem' }}>&lt;/&gt;</span>
             <span>Atul Nath</span>
           </a>
@@ -76,10 +85,11 @@ export default function Navbar({ isDark, toggleDark }) {
               {isDark ? <FiSun /> : <FiMoon />}
             </button>
             <button
+              id="mobile-menu-toggle"
               className="toggle-btn mobile-menu-btn"
               onClick={() => setMobileOpen(v => !v)}
-              aria-label="Toggle menu"
-              style={{ display: 'none' }}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? <FiX /> : <FiMenu />}
             </button>
@@ -102,17 +112,42 @@ export default function Navbar({ isDark, toggleDark }) {
                 href={link.href}
                 onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
                 className={`nav-link ${activeSection === link.href.replace('#', '') ? 'active' : ''}`}
-                style={{ fontSize: '1rem', padding: '10px 16px' }}
               >
                 {link.label}
               </a>
             ))}
+
+            {/* Dark/light toggle in mobile menu */}
+            <div style={{
+              borderTop: '1px solid var(--border-color)',
+              marginTop: '8px',
+              paddingTop: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              minHeight: '44px',
+              paddingLeft: '4px',
+              paddingRight: '4px',
+            }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                {isDark ? 'Light mode' : 'Dark mode'}
+              </span>
+              <button
+                className="toggle-btn"
+                onClick={toggleDark}
+                aria-label="Toggle dark mode"
+                style={{ minWidth: '44px', minHeight: '44px' }}
+              >
+                {isDark ? <FiSun /> : <FiMoon />}
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* RESPONSIVE TOGGLE VISIBILITY */}
       <style>{`
+        .mobile-menu-btn { display: none; }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: flex !important; }

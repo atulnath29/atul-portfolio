@@ -74,6 +74,7 @@ function ProjectCard({ project, index, inView }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         borderBottom: '1px solid var(--border-color)',
         position: 'relative',
+        flexShrink: 0,
       }}>
         {project.imageUrl ? (
           <img src={project.imageUrl} alt={project.title}
@@ -87,6 +88,10 @@ function ProjectCard({ project, index, inView }) {
             position: 'absolute', top: '12px', left: '12px',
             padding: '4px 12px', borderRadius: '50px', fontSize: '0.72rem', fontWeight: 700,
             background: badgeColor, color: 'white',
+            maxWidth: 'calc(100% - 24px)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}>
             {project.badge}
           </div>
@@ -95,7 +100,7 @@ function ProjectCard({ project, index, inView }) {
 
       {/* CONTENT */}
       <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: 'var(--text-primary)', lineHeight: 1.3 }}>
           {project.title}
         </h3>
         <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.7, flex: 1, marginBottom: '16px' }}>
@@ -117,7 +122,7 @@ function ProjectCard({ project, index, inView }) {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-blue)',
-              marginTop: 'auto',
+              marginTop: 'auto', minHeight: '32px',
             }}>
             <FiExternalLink size={14} /> View Project
           </a>
@@ -130,7 +135,7 @@ function ProjectCard({ project, index, inView }) {
 export default function Projects() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
-  const { data, loading, error } = useProjects();
+  const { data, loading } = useProjects();
 
   // Use Sanity data if available, otherwise fallback to seed data
   const projects = (data && data.length > 0) ? data : SEED_PROJECTS;
@@ -143,7 +148,7 @@ export default function Projects() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          style={{ textAlign: 'center', marginBottom: '48px' }}
         >
           <div className="section-label"><FiBriefcase /> Portfolio</div>
           <h2 className="section-heading">Recent Projects</h2>
@@ -162,11 +167,14 @@ export default function Projects() {
 
         {/* PROJECTS GRID */}
         {!loading && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px',
-          }}>
+          <div
+            className="projects-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
+              gap: '24px',
+            }}
+          >
             {projects.map((project, idx) => (
               <ProjectCard key={project._id} project={project} index={idx} inView={isInView} />
             ))}

@@ -27,10 +27,16 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container-custom">
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '40px', marginBottom: '40px',
-        }}>
+        {/* FOOTER GRID — 3 cols on desktop, 1 col on mobile */}
+        <div
+          className="footer-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))',
+            gap: '40px',
+            marginBottom: '40px',
+          }}
+        >
           {/* BRAND */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '1.15rem', marginBottom: '14px' }}>
@@ -40,7 +46,10 @@ export default function Footer() {
             <p style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '280px' }}>
               Crafting digital experiences with passion, precision, and a touch of magic.
             </p>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '18px' }}>
+            <div
+              className="footer-social-row"
+              style={{ display: 'flex', gap: '10px', marginTop: '18px', flexWrap: 'wrap' }}
+            >
               {SOCIAL.map(s => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   className="social-link" aria-label={s.label}>
@@ -53,11 +62,14 @@ export default function Footer() {
           {/* QUICK LINKS */}
           <div>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>Quick Links</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div
+              className="footer-quick-links"
+              style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+            >
               {NAV_LINKS.map(link => (
                 <a key={link.href} href={link.href}
                   onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
-                  style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', transition: 'color 0.2s' }}
+                  style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', transition: 'color 0.2s', minHeight: '24px' }}
                   onMouseEnter={e => e.target.style.color = 'var(--accent-blue)'}
                   onMouseLeave={e => e.target.style.color = 'var(--text-secondary)'}
                 >
@@ -70,8 +82,12 @@ export default function Footer() {
           {/* CONTACT QUICK */}
           <div>
             <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>Reach Me</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="mailto:atulnath2909@gmail.com" style={{ fontSize: '0.87rem', color: 'var(--text-secondary)' }}>
+            <div
+              className="footer-reach-me"
+              style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+            >
+              <a href="mailto:atulnath2909@gmail.com"
+                style={{ fontSize: '0.87rem', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>
                 atulnath2909@gmail.com
               </a>
               <a href="tel:+919691686473" style={{ fontSize: '0.87rem', color: 'var(--text-secondary)' }}>
@@ -83,11 +99,18 @@ export default function Footer() {
         </div>
 
         {/* BOTTOM BAR */}
-        <div style={{
-          borderTop: '1px solid var(--border-color)', paddingTop: '24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: '12px',
-        }}>
+        <div
+          className="footer-bottom-bar"
+          style={{
+            borderTop: '1px solid var(--border-color)',
+            paddingTop: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
             © 2026 Atul Nath. All rights reserved.
           </p>

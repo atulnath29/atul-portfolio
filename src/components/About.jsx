@@ -28,14 +28,22 @@ export default function About() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          style={{ textAlign: 'center', marginBottom: '56px' }}
         >
           <div className="section-label"><FiUser /> About</div>
           <h2 className="section-heading">About Me</h2>
           <div className="divider" />
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
+        {/* TWO-COLUMN GRID — stacks on mobile */}
+        <div
+          className="about-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))',
+            gap: '32px',
+          }}
+        >
           {/* LEFT COLUMN */}
           <div>
             {/* MISSION CARD */}
@@ -44,13 +52,14 @@ export default function About() {
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.1 }}
               className="card"
-              style={{ padding: '28px', marginBottom: '24px' }}
+              style={{ padding: '24px', marginBottom: '20px' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <div style={{
                   width: '38px', height: '38px', borderRadius: '10px',
                   background: 'rgba(59,130,246,0.1)', color: 'var(--accent-blue)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
                 }}>
                   <FiTarget size={18} />
                 </div>
@@ -70,13 +79,14 @@ export default function About() {
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="card"
-              style={{ padding: '28px' }}
+              style={{ padding: '24px' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <div style={{
                   width: '38px', height: '38px', borderRadius: '10px',
                   background: 'rgba(249,115,22,0.1)', color: 'var(--accent-orange)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
                 }}>
                   <FiHeart size={18} />
                 </div>
@@ -132,14 +142,16 @@ export default function About() {
                     background: 'var(--accent-blue)',
                     boxShadow: '0 0 0 3px rgba(59,130,246,0.2)',
                     marginTop: '4px',
+                    flexShrink: 0,
                   }} />
 
                   <div style={{ paddingLeft: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                       <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{item.title}</span>
                       <span style={{
                         padding: '2px 8px', borderRadius: '50px', fontSize: '0.7rem',
                         fontWeight: 600, background: 'rgba(59,130,246,0.1)', color: 'var(--accent-blue)',
+                        whiteSpace: 'nowrap',
                       }}>{item.year}</span>
                     </div>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{item.desc}</p>

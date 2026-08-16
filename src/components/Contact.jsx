@@ -43,7 +43,7 @@ export default function Contact() {
           initial={{ opacity: 0, y: 24 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: 'center', marginBottom: '64px' }}
+          style={{ textAlign: 'center', marginBottom: '56px' }}
         >
           <div className="section-label"><FiMail /> Contact</div>
           <h2 className="section-heading">Get In Touch</h2>
@@ -53,19 +53,28 @@ export default function Contact() {
           </p>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', alignItems: 'start' }}>
+        {/* CONTACT GRID — stacks to 1col on mobile */}
+        <div
+          className="contact-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))',
+            gap: '32px',
+            alignItems: 'start',
+          }}
+        >
           {/* CONTACT FORM */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.1 }}
             className="card"
-            style={{ padding: '32px' }}
+            style={{ padding: '28px' }}
           >
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '24px' }}>Send a Message</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                <label htmlFor="contact-name" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
                   Your Name
                 </label>
                 <input
@@ -80,7 +89,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                <label htmlFor="contact-email" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
                   Email Address
                 </label>
                 <input
@@ -95,7 +104,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                <label htmlFor="contact-message" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, marginBottom: '6px', color: 'var(--text-secondary)' }}>
                   Message
                 </label>
                 <textarea
@@ -115,7 +124,7 @@ export default function Contact() {
                 type="submit"
                 className="btn-primary"
                 disabled={sending}
-                style={{ justifyContent: 'center', opacity: sending ? 0.7 : 1 }}
+                style={{ justifyContent: 'center', opacity: sending ? 0.7 : 1, minHeight: '48px' }}
               >
                 {sending ? 'Sending...' : sent ? '✓ Sent!' : <><FiSend /> Send Message</>}
               </button>
@@ -127,25 +136,35 @@ export default function Contact() {
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.15 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
             {/* AVAILABLE BADGE */}
-            <div className="available-badge" style={{ marginBottom: '24px' }}>
+            <div className="available-badge">
               <span className="available-dot" />
               Available for Work
             </div>
 
             {/* CONTACT INFO */}
-            <div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
+            <div className="card" style={{ padding: '24px' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '4px' }}>Contact Info</h3>
               {CONTACT_INFO.map(item => (
                 <div key={item.label} className="contact-info-item">
-                  <div className="contact-icon-box">{item.icon}</div>
-                  <div>
+                  <div className="contact-icon-box" style={{ flexShrink: 0 }}>{item.icon}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '2px' }}>{item.label}</div>
                     {item.href ? (
-                      <a href={item.href} style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)' }}>{item.value}</a>
+                      <a
+                        href={item.href}
+                        className="contact-email-link"
+                        style={{
+                          fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)',
+                          wordBreak: 'break-word', overflowWrap: 'anywhere', display: 'block',
+                        }}
+                      >
+                        {item.value}
+                      </a>
                     ) : (
-                      <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{item.value}</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 500, display: 'block', wordBreak: 'break-word' }}>{item.value}</span>
                     )}
                   </div>
                 </div>
@@ -153,7 +172,7 @@ export default function Contact() {
             </div>
 
             {/* FOLLOW ME */}
-            <div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
+            <div className="card" style={{ padding: '24px' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px' }}>Follow Me</h3>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 {SOCIAL.map(s => (
@@ -175,10 +194,10 @@ export default function Contact() {
               }}>
                 <FiCalendar />
               </div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '2px' }}>Schedule a Call</div>
                 <a href="mailto:atulnath2909@gmail.com?subject=Schedule a Call"
-                  style={{ fontSize: '0.8rem', color: 'var(--accent-blue)' }}>
+                  style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', wordBreak: 'break-word' }}>
                   Book a time slot →
                 </a>
               </div>
